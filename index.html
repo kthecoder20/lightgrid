@@ -6,30 +6,48 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Lightgrid</title>
         <style>
+            :root {
+                --cols: 40;
+                --rows: 40;
+            }
+
+            html,
             body {
-                min-width: 100vw;
-                min-height: 100vh;
+                width: 100vw;
+                height: 100vh;
                 margin: 0;
                 padding: 0;
-                display: grid;
-                grid-template-columns: repeat(40, minmax(0, 1fr));
-                grid-template-rows: repeat(40, minmax(0, 1fr));
-                gap: 0;
                 overflow: hidden;
-                background-color: black;
+                background: radial-gradient(circle at center, #111 0%, #000 72%);
+            }
+
+            body {
+                display: grid;
+                grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+                grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+                gap: 0.08rem;
                 touch-action: none;
                 cursor: grab;
+            }
+
+            body::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                background: radial-gradient(circle at center, rgba(255, 255, 255, 0.04), transparent 35%);
+                opacity: 0.3;
             }
 
             div {
                 width: 100%;
                 height: 100%;
                 box-sizing: border-box;
-                border-style: solid;
-                border-radius: 100%;
-                background-color: black;
-                border-width: 0.01rem;
-                border-color: rgba(255, 255, 255, 0.08);
+                border-radius: 50%;
+                background-color: #040404;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.03);
+                transition: background-color 0.12s linear, border-width 0.12s linear;
             }
         </style>
         <script src="popup.js" async></script>
