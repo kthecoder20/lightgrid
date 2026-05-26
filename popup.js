@@ -1,17 +1,21 @@
+const columns = 40;
+const rows = 40;
+const pointer = { x: null, y: null };
+
 const activate = event => {
-    const { x, y } = event.target.dataset;
-    event.target.dataset.color = 100;
+    const target = event.target;
+    if (!target || !target.dataset || target.dataset.x === undefined) return;
 
-    divs.filter(div => div !== event.target).forEach(div => {
-        const distance = Math.hypot(
-            Math.abs(div.dataset.x - x),
-            Math.abs(div.dataset.y - y)
-        );
+    const x = Number(target.dataset.x);
+    const y = Number(target.dataset.y);
+    target.dataset.color = 100;
 
-        if (distance >= 10) return;
+    divs.filter(div => div !== target).forEach(div => {
+        const distance = Math.hypot(div.dataset.x - x, div.dataset.y - y);
+        if (distance >= 12) return;
 
         div.dataset.color = Math.max(
-            (10 - distance) * (Math.random() * 0.25 + 0.75) * 5,
+            (12 - distance) * (Math.random() * 0.4 + 0.6) * 4,
             div.dataset.color
         );
 
@@ -34,31 +38,52 @@ const step = time => {
     }
 
     lastTime = time;
-
     requestAnimationFrame(step);
 };
 
-for (let y = 0; y < 20; y++) {
-    for (let x = 0; x < 20; x++) {
+for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < columns; x++) {
         const div = document.createElement('div');
 
         div.dataset.color = 0;
         div.dataset.x = x;
         div.dataset.y = y;
 
-        div.addEventListener('mouseover', activate);
         div.addEventListener('click', activate);
-
         document.body.appendChild(div);
     }
 }
 
-addEventListener('touchmove', event => {
-    Array.from(event.touches).forEach(touch => {
-        document.elementFromPoint(touch.clientX, touch.clientY).click();
-    });
+const divs = Array.from(document.getElementsByTagName('div'));
+
+addEventListener('pointermove', event => {
+    pointer.x = event.clientX;
+    pointer.y = event.clientY;
 });
 
-const divs = Array.from(document.getElementsByTagName('div'));
+addEventListener('pointerleave', () => {
+    pointer.x = null;
+    pointer.y = null;
+});
+
+const pollCursor = () => {
+    if (pointer.x === null || pointer.y === null) return;
+    const element = document.elementFromPoint(pointer.x, pointer.y);
+    if (element instanceof HTMLElement && element.dataset?.x !== undefined) {
+        activate({ target: element });
+    }
+};
+
+setInterval(pollCursor, 1000 / 120);
+
+addEventListener('touchmove', event => {
+    event.preventDefault();
+    const touch = event.touches[0];
+    if (!touch) return;
+    pointer.x = touch.clientX;
+    pointer.y = touch.clientY;
+    const element = document.elementFromPoint(pointer.x, pointer.y);
+    if (element instanceof HTMLElement) element.click();
+}, { passive: false });
 
 requestAnimationFrame(step);
